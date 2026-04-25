@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In - AuraHealth</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+</head>
+
+<body class="bg-gradient-to-br from-[#eff6ff] to-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden">
+
+    <!-- Top Gradient Header -->
+    <div class="bg-gradient-to-r from-[#2563eb] to-teal-500 text-white text-center py-10">
+      <div class="w-16 h-16 mx-auto bg-white/20 rounded-2xl flex items-center justify-center text-2xl mb-4">
+        <i class="fa-solid fa-heart-pulse"></i>
+      </div>
+      <h2 class="text-3xl font-bold">AuraHealth</h2>
+      <p class="text-sm opacity-90 mt-2">Your Intelligent Healthcare Companion</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-gray-100 p-2 flex rounded-full mx-6 mt-6">
+      <button class="w-1/2 bg-white py-2 rounded-full shadow font-medium">Sign In</button>
+      <button class="w-1/2 text-gray-500">Sign Up</button>
+    </div>
+
+    <!-- Form Section -->
+    <div class="p-8">
+
+      <!-- Google Button -->
+      <button class="w-full border rounded-2xl py-3 flex items-center justify-center gap-3 shadow-sm hover:bg-gray-50">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5">
+        Continue with Google
+      </button>
+
+      <!-- Divider -->
+      <div class="flex items-center my-6">
+        <div class="flex-1 h-px bg-gray-300"></div>
+        <span class="px-3 text-gray-400 text-sm">or</span>
+        <div class="flex-1 h-px bg-gray-300"></div>
+      </div>
+
+      <!-- Form -->
+      <form>
+        <div class="space-y-5">
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Email Address</label>
+            <div class="flex items-center border rounded-2xl px-4 py-3">
+              <i class="fa-regular fa-envelope text-gray-400 mr-3"></i>
+              <input type="email" placeholder="you@example.com" class="w-full outline-none">
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <div class="flex items-center border rounded-2xl px-4 py-3">
+              <i class="fa-solid fa-lock text-gray-400 mr-3"></i>
+              <input type="password" placeholder="••••••••" class="w-full outline-none">
+              <i class="fa-regular fa-eye text-gray-400"></i>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Forgot -->
+        <div class="text-right mt-3">
+          <a href="#" class="text-[#2563eb] text-sm">Forgot password?</a>
+        </div>
+
+        <!-- Button -->
+        <button class="mt-6 w-full bg-[#2563eb] text-white py-4 rounded-2xl font-semibold hover:bg-[#1d4ed8]">
+          Sign In
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

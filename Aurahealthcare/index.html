@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AuraHealth - Your AI Health Companion</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+</head>
+
+<body class="bg-gray-50 font-sans antialiased">
+
+  <nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-heart-pulse text-3xl text-[#2563eb]"></i>
+        <h1 class="text-2xl font-bold text-gray-800">AuraHealth</h1>
+      </div>
+
+      <div class="hidden md:flex space-x-8">
+        <a href="#features" class="hover:text-[#2563eb]">Features</a>
+        <a href="#how" class="hover:text-[#2563eb]">How it Works</a>
+        <a href="#history" class="hover:text-[#2563eb]">History</a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="signin.html" class="px-5 py-2 text-[#2563eb] hover:bg-blue-50 rounded-xl">Sign In</a>
+        <a href="signup.html" class="bg-[#2563eb] text-white px-6 py-2 rounded-xl hover:bg-[#1d4ed8]">Sign Up Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-[#eff6ff] to-gray-100 py-24 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+      <!-- Left -->
+      <div>
+        <span class="inline-block bg-[#dbeafe] text-[#2563eb] px-4 py-2 rounded-full text-sm mb-6">
+          ● Available 24/7 for your health questions
+        </span>
+
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+          Your Intelligent <br>
+          <span class="text-[#2563eb]">Healthcare</span><br>
+          <span class="text-teal-500">Companion</span>
+        </h1>
+
+        <p class="text-gray-600 text-lg mb-8 max-w-xl">
+          Get instant, reliable information about symptoms, medications, and wellness tips powered by advanced AI. 
+          A guiding light for your health journey.
+        </p>
+
+        <a href="chat.html" class="inline-block bg-[#2563eb] text-white px-8 py-4 rounded-xl text-lg hover:bg-[#1d4ed8] transition">
+          Start Free Consultation →
+        </a>
+
+        <p class="text-xs text-gray-400 mt-4">
+          *Not a replacement for professional medical advice. Always consult a doctor for diagnosis.
+        </p>
+      </div>
+
+      <!-- Right Image -->
+      <div class="relative">
+        <div class="bg-white rounded-3xl shadow-xl p-4">
+          <!-- 🔁 Replace with your image path -->
+          <img 
+            src="health-ai.png" 
+            alt="Healthcare AI" 
+            class="rounded-2xl w-full"
+          />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-4xl font-bold text-center mb-16">Powerful Features</h2>
+
+      <div class="grid md:grid-cols-3 gap-10">
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-stethoscope text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Symptom Checker</h3>
+          <p class="text-gray-600">Describe your symptoms and Aura will give possible causes with confidence levels.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-pills text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Medication Reminder</h3>
+          <p class="text-gray-600">Set reminders for medicines and track dosages easily.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-brain text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Mental Health Support</h3>
+          <p class="text-gray-600">Track mood, reduce stress, and stay mentally healthy.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-chart-line text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Health Insights</h3>
+          <p class="text-gray-600">Get personalized reports based on your health data.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-user-doctor text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Doctor Appointment</h3>
+          <p class="text-gray-600">Find doctors and book appointments easily.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-3xl hover:shadow-xl transition">
+          <i class="fa-solid fa-shield-halved text-5xl text-[#2563eb] mb-6"></i>
+          <h3 class="text-2xl font-semibold mb-3">Privacy First</h3>
+          <p class="text-gray-600">Your data is encrypted and secure.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section id="how" class="py-20 bg-gray-100">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-12">How AuraHealth Works</h2>
+
+      <div class="grid md:grid-cols-4 gap-8">
+
+        <div>
+          <div class="w-16 h-16 mx-auto bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center text-3xl font-bold mb-4">1</div>
+          <h4 class="font-semibold">Sign Up</h4>
+        </div>
+
+        <div>
+          <div class="w-16 h-16 mx-auto bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center text-3xl font-bold mb-4">2</div>
+          <h4 class="font-semibold">Chat with Aura</h4>
+        </div>
+
+        <div>
+          <div class="w-16 h-16 mx-auto bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center text-3xl font-bold mb-4">3</div>
+          <h4 class="font-semibold">Get Insights</h4>
+        </div>
+
+        <div>
+          <div class="w-16 h-16 mx-auto bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center text-3xl font-bold mb-4">4</div>
+          <h4 class="font-semibold">Stay Healthy</h4>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-12">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <p>&copy; 2026 AuraHealth. Made with ❤️ for better health.</p>
+      <p class="text-sm text-gray-500 mt-2">
+        Disclaimer: Not a substitute for professional medical advice.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

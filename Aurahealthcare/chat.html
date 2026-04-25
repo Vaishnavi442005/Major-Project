@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura - AuraHealth</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+  <div class="flex h-screen">
+
+    <!-- Sidebar -->
+    <div class="w-72 bg-white border-r flex flex-col">
+
+      <!-- Logo -->
+      <div class="p-6 border-b flex items-center gap-3">
+        <i class="fa-solid fa-heart-pulse text-3xl text-[#2563eb]"></i>
+        <h1 class="text-2xl font-bold">AuraHealth</h1>
+      </div>
+
+      <!-- Profile -->
+      <div class="p-6">
+        <div class="flex items-center gap-3 bg-blue-50 p-4 rounded-2xl">
+          <div class="w-12 h-12 bg-[#2563eb] text-white rounded-2xl flex items-center justify-center">👩‍⚕️</div>
+          <div>
+            <p class="font-semibold">Aura</p>
+            <p class="text-xs text-[#2563eb]">Online • Healthcare AI</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="flex-1 overflow-auto p-6">
+        <h4 class="text-sm text-gray-500 mb-4">Recent Conversations</h4>
+      </div>
+
+      <!-- Logout + Disclaimer -->
+      <div class="p-6 border-t">
+
+        <!-- Logout -->
+        <button onclick="logout()" 
+          class="w-full text-red-600 hover:bg-red-50 py-3 rounded-2xl flex justify-center gap-2 mb-4">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+
+        <!-- Medical Disclaimer -->
+        <p class="text-xs text-gray-400 text-center leading-relaxed">
+          <span class="font-semibold text-gray-500">Medical Disclaimer:</span><br>
+          This AI assistant is for informational purposes only and does not provide 
+          medical advice, diagnosis, or treatment.
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="flex-1 flex flex-col">
+
+      <!-- Top Bar -->
+      <div class="bg-white border-b px-6 py-4 flex items-center gap-4">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#2563eb] to-teal-500 text-white rounded-2xl flex items-center justify-center">✨</div>
+        <div>
+          <h2 class="font-semibold">Aura</h2>
+          <p class="text-xs text-[#2563eb]">Your personal health assistant</p>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="chatMessages" class="flex-1 p-6 overflow-auto space-y-6 bg-gray-50">
+
+        <!-- Welcome + Feature Cards -->
+        <div class="text-center py-10">
+          <div class="w-16 h-16 mx-auto bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center text-2xl mb-4">
+            ✨
+          </div>
+
+          <h2 class="text-xl font-semibold mb-2">How can I help you today?</h2>
+          <p class="text-gray-500 text-sm mb-8">
+            Describe your symptoms, ask about medications, or get wellness tips.
+          </p>
+
+          <div class="flex flex-wrap justify-center gap-4">
+
+            <button onclick="quickPrompt('I want to check my symptoms')" 
+              class="bg-white border rounded-2xl px-6 py-4 shadow-sm hover:shadow-md flex items-center gap-3">
+              <i class="fa-solid fa-heart text-[#2563eb]"></i>
+              Check my symptoms
+            </button>
+
+            <button onclick="quickPrompt('Tell me about medication side effects')" 
+              class="bg-white border rounded-2xl px-6 py-4 shadow-sm hover:shadow-md flex items-center gap-3">
+              <i class="fa-solid fa-pills text-[#2563eb]"></i>
+              Medication side effects
+            </button>
+
+            <button onclick="quickPrompt('Give me mental wellness tips')" 
+              class="bg-white border rounded-2xl px-6 py-4 shadow-sm hover:shadow-md flex items-center gap-3">
+              <i class="fa-solid fa-brain text-[#2563eb]"></i>
+              Mental wellness tips
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input -->
+      <div class="p-6 bg-white border-t">
+        <div class="max-w-4xl mx-auto flex gap-3">
+
+          <input id="userInput" type="text"
+            placeholder="Describe your symptoms..."
+            class="flex-1 px-6 py-4 border rounded-3xl focus:outline-none focus:border-[#2563eb]" />
+
+          <button onclick="sendMessage()"
+            class="bg-[#2563eb] text-white px-6 rounded-3xl hover:bg-[#1d4ed8]">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+
+        </div>
+
+        <p class="text-xs text-center text-gray-400 mt-3">
+          Not a medical diagnosis. Always consult a doctor.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function quickPrompt(text) {
+      const input = document.getElementById("userInput");
+      input.value = text;
+      sendMessage();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chat = document.getElementById('chatMessages');
+
+      chat.innerHTML += `
+        <div class="flex justify-end">
+          <div class="bg-[#2563eb] text-white px-5 py-3 rounded-3xl max-w-xs">${msg}</div>
+        </div>
+      `;
+
+      input.value = '';
+
+      setTimeout(() => {
+        chat.innerHTML += `
+          <div class="flex gap-3">
+            <div class="w-8 h-8 bg-blue-100 text-[#2563eb] rounded-2xl flex items-center justify-center">👩‍⚕️</div>
+            <div class="bg-white px-5 py-3 rounded-3xl max-w-md">
+              Thanks for your question! Based on your input, here are some helpful insights. Please consult a doctor for accurate diagnosis.
+            </div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      }, 800);
+    }
+
+    function logout() {
+      if (confirm("Logout?")) {
+        window.location.href = "index.html";
+      }
+    }
+
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+
+</body>
+</html>
