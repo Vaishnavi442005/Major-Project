@@ -1,0 +1,645 @@
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { Activity, Eye, EyeOff, Lock, Mail, ShieldCheck, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { motion, AnimatePresence } from "framer-motion";
+
+export type AuthUser = {
+  email: string;
+  name?: string;
+  loggedIn: boolean;
+  mode: "email" | "google" | "guest";
+};
+
+export function setAuth(user: AuthUser) {
+  localStorage.setItem("aura_auth", JSON.stringify(user));
+}
+
+export function clearAuth() {
+  localStorage.removeItem("aura_auth");
+  sessionStorage.removeItem("aura_guest");
+}
+
+export function setGuestMode() {
+  sessionStorage.setItem("aura_guest", "1");
+}
+
+export function isGuest(): boolean {
+  return sessionStorage.getItem("aura_guest") === "1";
+}
+
+export function getAuth(): AuthUser | null {
+  if (isGuest()) {
+    return { email: "guest", name: "Guest", loggedIn: true, mode: "guest" };
+  }
+  const raw = localStorage.getItem("aura_auth");
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+    </svg>
+  );
+}
+
+export default function LoginPage() {
+  const [, navigate] = useLocation();
+  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (tab === "signup" && !name.trim()) { setError("Please enter your full name."); return; }
+    if (!email || !email.includes("@")) { setError("Please enter a valid email address."); return; }
+    if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
+    setLoading(true);
+    setTimeout(() => {
+      setAuth({ email, name: name || email.split("@")[0], loggedIn: true, mode: "email" });
+      navigate("/");
+    }, 900);
+  };
+
+  const handleGoogle = () => {
+    setGoogleLoading(true);
+    setTimeout(() => {
+      setAuth({ email: "user@gmail.com", name: "Google User", loggedIn: true, mode: "google" });
+      navigate("/");
+    }, 1200);
+  };
+
+  const handleGuest = () => { setGuestMode(); navigate("/chat"); };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-2xl border border-blue-50 overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-accent px-8 py-8 text-white text-center">
+            <Activity className="w-8 h-8 mx-auto mb-3" />
+            <h1 className="text-2xl font-bold">AuraHealth</h1>
+            <p className="text-blue-100 text-xs">Your Intelligent Healthcare Companion</p>
+          </div>
+          <div className="px-8 pt-6 pb-8">
+            {/* Sign In / Sign Up tabs */}
+            <div className="flex bg-muted/60 rounded-xl p-1 mb-6">
+              {(["signin", "signup"] as const).map((t) => (
+                <button key={t} onClick={() => { setTab(t); setError(""); }}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${tab === t ? "bg-white shadow-sm" : "text-muted-foreground"}`}>
+                  {t === "signin" ? "Sign In" : "Sign Up"}
+                </button>
+              ))}
+            </div>
+            {/* Google Button */}
+            <Button variant="outline" className="w-full h-11 rounded-xl gap-3 mb-4"
+              onClick={handleGoogle} disabled={googleLoading}>
+              <GoogleIcon />
+              {googleLoading ? "Connecting..." : "Continue with Google"}
+            </Button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-border/50" /><span className="text-xs text-muted-foreground">or</span>
+              <div className="flex-1 h-px bg-border/50" />
+            </div>
+            {/* Email/Password Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <AnimatePresence>
+                {tab === "signup" && (
+                  <motion.div key="name" initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <Label>Full Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input placeholder="Jane Smith" value={name} onChange={e => setName(e.target.value)} className="pl-10 h-11" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div>
+                <Label>Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input type="email" placeholder="you@example.com" value={email}
+                    onChange={e => setEmail(e.target.value)} className="pl-10 h-11" />
+                </div>
+              </div>
+              <div>
+                <Label>Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input type={showPassword ? "text" : "password"} placeholder="••••••••"
+                    value={password} onChange={e => setPassword(e.target.value)} className="pl-10 pr-10 h-11" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              {error && <p className="text-sm text-red-500 bg-red-50 rounded-xl px-4 py-2">{error}</p>}
+              <Button type="submit" className="w-full h-11 rounded-xl" disabled={loading}>
+                {loading ? "Please wait..." : tab === "signup" ? "Create Account" : "Sign In"}
+              </Button>
+            </form>
+            {/* Guest Mode */}
+            <div className="mt-5 text-center">
+              <button onClick={handleGuest} className="text-sm text-muted-foreground underline">
+                Continue as Guest
+              </button>
+              <p className="text-xs text-muted-foreground/60 mt-1">Chats won't be saved in guest mode</p>
+            </div>
+            <div className="mt-5 pt-5 border-t flex items-start gap-3">
+              <ShieldCheck className="w-4 h-4 text-green-500 shrink-0" />
+              <p className="text-xs text-muted-foreground">Your data is encrypted and protected.</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+import { useState, useRef, useEffect } from "react";
+import { useRoute, useLocation } from "wouter";
+import { Send, Menu, Sparkles, Pill, BrainCircuit, HeartPulse, Shield, ImagePlus, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Sidebar } from "@/components/chat/Sidebar";
+import { MessageBubble } from "@/components/chat/MessageBubble";
+import { useGetOpenaiConversation, useCreateOpenaiConversation } from "@workspace/api-client-react";
+import { useChatStream, StreamMessage } from "@/hooks/use-chat-stream";
+import { getListOpenaiConversationsQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { isGuest } from "@/pages/LoginPage";
+
+const SUGGESTIONS = [
+  { icon: HeartPulse, text: "Check my symptoms" },
+  { icon: Pill, text: "Medication side effects" },
+  { icon: BrainCircuit, text: "Mental wellness tips" },
+];
+
+export default function ChatPage() {
+  const [match, params] = useRoute("/chat/:id");
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
+  const guest = isGuest();
+  const conversationId = !guest && match && params?.id ? parseInt(params.id) : null;
+
+  const [input, setInput] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ base64: string; mimeType: string; previewUrl: string } | null>(null);
+  const [guestMessages, setGuestMessages] = useState<StreamMessage[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: conversation, isLoading: isLoadingConv } = useGetOpenaiConversation(
+    conversationId as number, { query: { enabled: !!conversationId && !guest } }
+  );
+  const createMutation = useCreateOpenaiConversation();
+  const { startStream, startGuestStream, optimisticMessages, isStreaming } = useChatStream();
+
+  const dbMessages = (conversation?.messages || []).map(m => ({
+    id: m.id.toString(), role: m.role as "user" | "assistant",
+    content: m.content, imageUrl: (m as any).imageUrl ?? undefined,
+  }));
+
+  const displayMessages = guest ? guestMessages : [...dbMessages, ...optimisticMessages];
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [displayMessages]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setSelectedImage({ base64: dataUrl.split(",")[1], mimeType: file.type, previewUrl: dataUrl });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleSubmit = async (e?: React.FormEvent, suggestionText?: string) => {
+    e?.preventDefault();
+    const textToSend = suggestionText || input;
+    if ((!textToSend.trim() && !selectedImage) || isStreaming) return;
+    const imageToSend = selectedImage;
+    setInput(""); setSelectedImage(null);
+
+    if (guest) {
+      const currentMessages = guestMessages.filter(m => !m.isStreaming);
+      await startGuestStream(currentMessages, textToSend || "Please analyze this image.",
+        imageToSend?.base64, imageToSend?.mimeType, imageToSend?.previewUrl,
+        (msgs) => setGuestMessages(msgs));
+      return;
+    }
+
+    try {
+      let activeId = conversationId;
+      if (!activeId) {
+        const title = textToSend.slice(0, 40);
+        const newConv = await createMutation.mutateAsync({ data: { title } });
+        activeId = newConv.id;
+        queryClient.invalidateQueries({ queryKey: getListOpenaiConversationsQueryKey() });
+        setLocation(`/chat/${activeId}`, { replace: true });
+      }
+      await startStream(activeId, textToSend, imageToSend?.base64, imageToSend?.mimeType, imageToSend?.previewUrl);
+    } catch { toast.error("Failed to process your request"); }
+  };
+
+  const canSend = (input.trim() || selectedImage) && !isStreaming;
+
+  return (
+    <div className="flex h-screen bg-background overflow-hidden">
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 md:relative md:translate-x-0 transform transition-transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <Sidebar onCloseMobile={() => setSidebarOpen(false)} />
+      </div>
+      <div className="flex-1 flex flex-col min-w-0 h-full">
+        <header className="h-14 flex items-center justify-between px-4 border-b bg-background/80">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSidebarOpen(true)}>
+              <Menu className="w-5 h-5" />
+            </Button>
+            <h2 className="font-semibold">{guest ? "Guest Session" : (conversation?.title || "New Assessment")}</h2>
+          </div>
+          <div className="flex items-center text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
+            <Shield className="w-3.5 h-3.5 mr-1.5 text-primary" />
+            {guest ? "Guest — chats not saved" : "Secure & Private"}
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="max-w-3xl mx-auto">
+            {displayMessages.length === 0 ? (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+                <Sparkles className="w-8 h-8 text-primary mb-6" />
+                <h2 className="text-2xl font-bold mb-2">How can I help you today?</h2>
+                <p className="text-muted-foreground mb-8">
+                  {guest ? "Guest mode — your chat won't be saved." : "Describe your symptoms or ask about medications."}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl">
+                  {SUGGESTIONS.map((item, i) => (
+                    <button key={i} onClick={() => handleSubmit(undefined, item.text)}
+                      className="flex flex-col items-center p-4 bg-card border rounded-2xl hover:border-primary/50 transition-all">
+                      <item.icon className="w-6 h-6 mb-3 text-muted-foreground" />
+                      <span className="font-medium">{item.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
+              <div className="space-y-6 pb-4">
+                {displayMessages.map((msg, i) => (
+                  <MessageBubble key={msg.id + i} role={msg.role} content={msg.content}
+                    imageUrl={msg.imageUrl} isStreaming={msg.isStreaming} />
+                ))}
+                <div ref={messagesEndRef} className="h-4" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="p-4 shrink-0">
+          <div className="max-w-3xl mx-auto">
+            {selectedImage && (
+              <div className="mb-2 relative inline-block">
+                <img src={selectedImage.previewUrl} alt="Selected" className="h-20 w-20 object-cover rounded-xl border" />
+                <button onClick={() => setSelectedImage(null)}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-white rounded-full flex items-center justify-center">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="relative bg-card border rounded-2xl overflow-hidden">
+              <Textarea value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+                placeholder="Type your health question here..."
+                className="w-full min-h-[60px] max-h-[200px] resize-none border-0 px-4 py-4 pr-24" disabled={isStreaming} />
+              <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+                <Button type="button" size="icon" variant="ghost" onClick={() => fileInputRef.current?.click()}>
+                  <ImagePlus className="w-5 h-5" />
+                </Button>
+                <Button type="submit" size="icon" disabled={!canSend}
+                  className={`rounded-xl h-10 w-10 ${canSend ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </div>
+            </form>
+            <p className="text-center mt-3 text-xs text-muted-foreground">
+              AI responses are for informational purposes only. Always consult a healthcare professional.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+import { useState, useRef, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetOpenaiConversationQueryKey } from "@workspace/api-client-react";
+
+export type StreamMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  imageUrl?: string;
+  isStreaming?: boolean;
+};
+
+export function useChatStream() {
+  const [optimisticMessages, setOptimisticMessages] = useState<StreamMessage[]>([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const queryClient = useQueryClient();
+
+  // Authenticated users: streams and saves to database
+  const startStream = useCallback(async (
+    conversationId: number, content: string,
+    imageBase64?: string, imageMimeType?: string, imagePreviewUrl?: string,
+  ) => {
+    setIsStreaming(true);
+    const userMsgId = `user-${Date.now()}`;
+    const assistantMsgId = `assistant-${Date.now()}`;
+    setOptimisticMessages([
+      { id: userMsgId, role: "user", content, imageUrl: imagePreviewUrl },
+      { id: assistantMsgId, role: "assistant", content: "", isStreaming: true }
+    ]);
+    abortControllerRef.current = new AbortController();
+    try {
+      const body: Record<string, string> = { content };
+      if (imageBase64) body.imageBase64 = imageBase64;
+      if (imageMimeType) body.imageMimeType = imageMimeType;
+      const response = await fetch(`/api/openai/conversations/${conversationId}/messages`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body), signal: abortControllerRef.current.signal,
+      });
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let done = false, fullContent = "";
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          for (const line of decoder.decode(value, { stream: true }).split("\n")) {
+            if (line.startsWith("data: ")) {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) done = true;
+              else if (data.content) {
+                fullContent += data.content;
+                setOptimisticMessages(prev => prev.map(msg =>
+                  msg.id === assistantMsgId ? { ...msg, content: fullContent } : msg));
+              }
+            }
+          }
+        }
+      }
+      await queryClient.invalidateQueries({ queryKey: getGetOpenaiConversationQueryKey(conversationId) });
+    } catch (err: any) {
+      if (err.name !== "AbortError") setError(err.message);
+    } finally {
+      setIsStreaming(false);
+      setTimeout(() => setOptimisticMessages([]), 500);
+    }
+  }, [queryClient]);
+
+  // Guest users: streams without saving to database
+  const startGuestStream = useCallback(async (
+    messages: StreamMessage[], content: string,
+    imageBase64?: string, imageMimeType?: string, imagePreviewUrl?: string,
+    onNewMessage?: (msgs: StreamMessage[]) => void,
+  ) => {
+    setIsStreaming(true);
+    abortControllerRef.current = new AbortController();
+    const userMsg: StreamMessage = { id: `user-${Date.now()}`, role: "user", content, imageUrl: imagePreviewUrl };
+    const assistantMsg: StreamMessage = { id: `assistant-${Date.now()}`, role: "assistant", content: "", isStreaming: true };
+    const updatedMessages = [...messages, userMsg, assistantMsg];
+    onNewMessage?.(updatedMessages);
+    try {
+      const history = messages.map(m => ({ role: m.role, content: m.content, imageUrl: m.imageUrl }));
+      history.push({ role: "user", content, imageUrl: imagePreviewUrl });
+      const body: Record<string, any> = { messages: history };
+      if (imageBase64) body.imageBase64 = imageBase64;
+      if (imageMimeType) body.imageMimeType = imageMimeType;
+      const response = await fetch(`/api/openai/guest/chat`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body), signal: abortControllerRef.current.signal,
+      });
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let done = false, fullContent = "";
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          for (const line of decoder.decode(value, { stream: true }).split("\n")) {
+            if (line.startsWith("data: ")) {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) done = true;
+              else if (data.content) {
+                fullContent += data.content;
+                onNewMessage?.(updatedMessages.map(m =>
+                  m.id === assistantMsg.id ? { ...m, content: fullContent } : m));
+              }
+            }
+          }
+        }
+      }
+      onNewMessage?.(updatedMessages.map(m =>
+        m.id === assistantMsg.id ? { ...m, content: fullContent, isStreaming: false } : m));
+    } catch (err: any) {
+      if (err.name !== "AbortError") setError(err.message);
+    } finally { setIsStreaming(false); }
+  }, []);
+
+  return { optimisticMessages, isStreaming, error, startStream, startGuestStream,
+    stopStream: () => { abortControllerRef.current?.abort(); setIsStreaming(false); } };
+}
+import { Activity, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { motion } from "framer-motion";
+
+interface MessageBubbleProps {
+  role: "user" | "assistant";
+  content: string;
+  imageUrl?: string;
+  isStreaming?: boolean;
+}
+
+export function MessageBubble({ role, content, imageUrl, isStreaming }: MessageBubbleProps) {
+  const isAssistant = role === "assistant";
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      className={`flex w-full ${isAssistant ? "justify-start" : "justify-end"} mb-6`}>
+      <div className={`flex max-w-[85%] md:max-w-[75%] ${isAssistant ? "flex-row" : "flex-row-reverse"}`}>
+        <div className={`flex-shrink-0 ${isAssistant ? "mr-4" : "ml-4"}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isAssistant ? "bg-gradient-to-br from-primary to-accent text-white" : "bg-secondary"}`}>
+            {isAssistant ? <Activity className="w-4 h-4" /> : <User className="w-4 h-4" />}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          {imageUrl && (
+            <div className="rounded-2xl overflow-hidden border border-border">
+              <img src={imageUrl} alt="Uploaded" className="max-w-xs max-h-64 object-cover" />
+            </div>
+          )}
+          {(content || isStreaming) && (
+            <div className={`px-5 py-4 rounded-2xl text-[15px] leading-relaxed ${isAssistant ? "bg-card border text-card-foreground rounded-tl-none" : "bg-primary text-primary-foreground rounded-tr-none"}`}>
+              {content ? (
+                <div className={`prose prose-sm max-w-none ${isAssistant ? "prose-slate" : "prose-invert"}`}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                </div>
+              ) : isStreaming ? (
+                <div className="flex space-x-1 items-center h-5">
+                  <div className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-1.5 h-1.5 bg-primary/80 rounded-full animate-bounce"></div>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+import { Router } from "express";
+import { eq } from "drizzle-orm";
+import { db, conversations, messages } from "@workspace/db";
+import { openai } from "@workspace/integrations-openai-ai-server";
+
+const router = Router();
+
+const SYSTEM_PROMPT = `You are a helpful AI healthcare assistant.
+- Use short bullet points, max 3-5 per response
+- Each bullet is one sentence only
+- End with a recommendation or next step
+- Responses are informational only, not medical advice
+- Always recommend seeing a doctor for serious concerns
+- Never diagnose or prescribe`;
+
+// GET all conversations
+router.get("/conversations", async (req, res) => {
+  const convs = await db.select().from(conversations).orderBy(conversations.createdAt);
+  res.json(convs);
+});
+
+// POST create conversation
+router.post("/conversations", async (req, res) => {
+  const [conv] = await db.insert(conversations).values({ title: req.body.title }).returning();
+  res.status(201).json(conv);
+});
+
+// GET single conversation with messages
+router.get("/conversations/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
+  if (!conv) { res.status(404).json({ error: "Not found" }); return; }
+  const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.createdAt);
+  res.json({ ...conv, messages: msgs });
+});
+
+// DELETE conversation
+router.delete("/conversations/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  await db.delete(messages).where(eq(messages.conversationId, id));
+  await db.delete(conversations).where(eq(conversations.id, id));
+  res.status(204).end();
+});
+
+// POST send message (authenticated — saves to DB, streams AI response)
+router.post("/conversations/:id/messages", async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { content, imageBase64, imageMimeType } = req.body;
+  const imageUrl = imageBase64 && imageMimeType ? `data:${imageMimeType};base64,${imageBase64}` : null;
+
+  await db.insert(messages).values({ conversationId: id, role: "user", content, imageUrl: imageUrl ?? undefined });
+  const history = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.createdAt);
+
+  const chatMessages: any[] = [{ role: "system", content: SYSTEM_PROMPT }];
+  for (const m of history) {
+    if (m.role === "user" && m.imageUrl)
+      chatMessages.push({ role: "user", content: [{ type: "text", text: m.content }, { type: "image_url", image_url: { url: m.imageUrl } }] });
+    else
+      chatMessages.push({ role: m.role, content: m.content });
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+
+  let fullResponse = "";
+  const stream = await openai.chat.completions.create({ model: "gpt-5.2", messages: chatMessages, stream: true });
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) { fullResponse += content; res.write(`data: ${JSON.stringify({ content })}\n\n`); }
+  }
+  await db.insert(messages).values({ conversationId: id, role: "assistant", content: fullResponse });
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
+// POST guest chat (no login required — does NOT save to DB)
+router.post("/guest/chat", async (req, res) => {
+  const { messages: msgHistory = [], imageBase64, imageMimeType } = req.body;
+
+  const chatMessages: any[] = [{ role: "system", content: SYSTEM_PROMPT }];
+  for (const m of msgHistory) {
+    if (m.role === "user" && m.imageUrl)
+      chatMessages.push({ role: "user", content: [{ type: "text", text: m.content }, { type: "image_url", image_url: { url: m.imageUrl } }] });
+    else
+      chatMessages.push({ role: m.role, content: m.content });
+  }
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+
+  const stream = await openai.chat.completions.create({ model: "gpt-5.2", messages: chatMessages, stream: true });
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  }
+  res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+  res.end();
+});
+
+export default router;
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { conversations } from "./conversations";
+
+// Conversations table
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Messages table
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id")
+    .notNull()
+    .references(() => conversations.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),          // "user" or "assistant"
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),           // base64 data URL for image uploads
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
